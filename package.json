@@ -1,0 +1,30 @@
+{
+    "name": "my-aws-cdk",
+    "version": "1.0.0",
+    "description": "Amazon EventBridge scheduled rule to execute an AWS Lambda function",
+    "private": true,
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "cdk": "cdk",
+        "cdk:diff": "cdk diff || true",
+        "cdk:deploy": "cdk deploy --require-approval never"
+    },
+    "author": {
+        "name": "Amazon Web Services",
+        "url": "https://aws.amazon.com",
+        "organization": true
+    },
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "@types/node": "22.7.9",
+        "aws-cdk": "2.1010.0",
+        "jest": "^29.7.0",
+        "typescript": "~5.6.3"
+    },
+    "dependencies": {
+        "aws-cdk-lib": "2.190.0",
+        "constructs": "^10.0.0",
+        "find-config": "^1.0.0"
+    }
+}
