@@ -8,7 +8,7 @@
         "watch": "tsc -w",
         "cdk": "cdk",
         "cdk:diff": "cdk diff || true",
-        "cdk:deploy": "cdk deploy --require-approval never"
+        "cdk:deploy": "cdk deploy"
     },
     "author": {
         "name": "Amazon Web Services",
