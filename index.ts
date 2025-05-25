@@ -9,13 +9,16 @@ import cdk = require('aws-cdk-lib');
 require('dotenv').config()
 import { env } from 'process'
 
+const appName = 'SmashEventRss'
+const lambdaName = appName + 'Lamba'
+
 export class EventBridgeLambdaStack extends cdk.Stack {
   constructor(app: cdk.App, id: string) {
     super(app, id);
 
     const source = codebuild.Source.gitHub({
       owner: 'tasasei',
-      repo: 'bluesky-bot-lambda',
+      repo: 'eveco-rss-lambda',
       webhook: true,
       webhookFilters: [
         codebuild.FilterGroup
@@ -24,7 +27,8 @@ export class EventBridgeLambdaStack extends cdk.Stack {
       ],
     })
     const bucket = new s3.Bucket(this, 'MyBuildBucket');
-    const project = new codebuild.Project(this, 'BlueskyBotBuildProject', {
+    const buildProjectName = lambdaName + 'BuildProject'
+    const project = new codebuild.Project(this, buildProjectName, {
       source: source,
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
@@ -34,7 +38,7 @@ export class EventBridgeLambdaStack extends cdk.Stack {
       artifacts: codebuild.Artifacts.s3({
         includeBuildId: false,
         packageZip: true,
-        path: 'BlueskyBotBuildProject',
+        path: buildProjectName,
         name: 'lambda.zip',
         bucket: bucket,
       })
@@ -44,14 +48,14 @@ export class EventBridgeLambdaStack extends cdk.Stack {
     bucket.grantWrite(project)
 
     // Lambda outputs to this loggroup
-    const logGroup = new logs.LogGroup(this, 'MyLambdaLogGroup', {
-      logGroupName: '/aws/lambda/BlueskyRssBotLambdaStack-BlueskyRssBotLambda',
+    const logGroup = new logs.LogGroup(this, lambdaName + 'LogGroup', {
+      logGroupName: `/aws/lambda/${lambdaName}Stack-${lambdaName}`,
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
     // Lambda Function to publish message to SNS
-    const lambdaFn = new lambda.Function(this, 'BlueskyRssBotLambda', {
-      code: lambda.S3CodeV2.fromBucketV2(bucket, 'BlueskyBotBuildProject/lambda.zip'),
+    const lambdaFn = new lambda.Function(this, lambdaName, {
+      code: lambda.S3CodeV2.fromBucketV2(bucket, `${buildProjectName}/lambda.zip`),
       handler: 'dist/index.handler',
       timeout: cdk.Duration.seconds(30),
       runtime: lambda.Runtime.NODEJS_22_X,
@@ -63,7 +67,7 @@ export class EventBridgeLambdaStack extends cdk.Stack {
     logGroup.grantWrite(lambdaFn)
 
     // Run the eventbridge every minute
-    const rule = new events.Rule(this, 'Rule', {
+    const rule = new events.Rule(this, `${lambdaName}Rule`, {
       schedule: events.Schedule.expression('rate(6 hours)')
     });
 
@@ -88,5 +92,5 @@ export class EventBridgeLambdaStack extends cdk.Stack {
 }
 
 const app = new cdk.App();
-new EventBridgeLambdaStack(app, 'BlueskyRssBotLambdaStack');
+new EventBridgeLambdaStack(app, `${lambdaName}Stack`);
 app.synth();
