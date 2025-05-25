@@ -6,6 +6,7 @@ import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import cdk = require('aws-cdk-lib');
+require('dotenv').config()
 import { env } from 'process'
 
 export class EventBridgeLambdaStack extends cdk.Stack {
